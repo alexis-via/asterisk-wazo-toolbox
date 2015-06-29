@@ -1,0 +1,72 @@
+#! /usr/bin/python
+# -*- encoding: utf-8 -*-
+#
+# Copyright (C) 2014 Alexis de Lattre <alexis _at_ via.ecp.fr>
+#
+# This script is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version. See http://www.gnu.org/licenses/gpl.html
+
+
+import sys
+from optparse import OptionParser
+from xivo_provd_cli import client as cli_client
+
+options = [
+    {
+        'names': ('-s', '--synchronize'),
+        'dest': 'sync',
+        'help': "Resync the devices. ",
+        'action': 'store_true',
+        'default': False},
+    ]
+
+if __name__ == '__main__':
+    usage = "usage: %prog [options] xivo-plugin1 xivo-plugin2 ..."
+    epilog = "Script written by Alexis de Lattre. " \
+        "Published under the GNU GPL licence."
+    description = "This script updates the configuration files of one " \
+        "or more provd plugins and can optionnaly resync them. " \
+        "If you use 'xivo-provd-cmd all', it will resync all the devices " \
+        "from all the plugins. If you use 'xivo-provd-cmd yealink', it " \
+        "will resync the plugins that have 'yealink' in their name."
+    parser = OptionParser(usage=usage, epilog=epilog, description=description)
+    for option in options:
+        param = option['names']
+        del option['names']
+        parser.add_option(*param, **option)
+    options, arguments = parser.parse_args()
+    sys.argv[:] = arguments
+    # print "arguments=", arguments
+    # print "sync=", options.sync
+
+    client = cli_client.new_cli_provisioning_client(
+        'http://localhost:8666/provd', ('admin', ''))
+    devices = client.devices()
+    plugins = client.plugins()
+
+    installed_plugins = plugins.installed().keys()
+    print "Installed plugins : %s" % installed_plugins
+
+    if not arguments:
+        print "The command requires one or more arguments"
+        sys.exit(1)
+
+    plugins_to_regen = []
+    if len(arguments) == 1 and arguments[0] == 'all':
+        plugins_to_regen = installed_plugins
+    else:
+        for arg in arguments:
+            for iplugin in installed_plugins:
+                if arg in iplugin:
+                    plugins_to_regen.append(iplugin)
+
+    print "Plugins to regenerate : %s" % plugins_to_regen
+
+    for plugin in plugins_to_regen:
+        print "RECONFIGURE PLUGIN %s..." % plugin
+        devices.using_plugin(plugin).reconfigure()
+        if options.sync:
+            print "SYNC PLUGIN %s ... " % plugin
+            devices.using_plugin(plugin).synchronize()
