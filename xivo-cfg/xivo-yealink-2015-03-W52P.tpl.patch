@@ -1,0 +1,56 @@
+--- W52P.tpl-origin	2015-07-03 16:09:48.153457167 +0200
++++ W52P.tpl	2015-07-03 16:12:12.993461927 +0200
+@@ -18,7 +18,7 @@
+ syslog.server = %NULL%
+ {% endif %}
+ 
+-lang.wui = {{ XX_lang|d('%NULL%') }}
++lang.wui = English
+ 
+ custom.handset.language = {{ XX_handset_lang|d('%NULL%') }}
+ 
+@@ -33,6 +33,13 @@
+ local_time.summer_time = %NULL%
+ {% endif %}
+ 
++{% if X_xivo_phonebook_ip %}
++#remote_phonebook.data.1.url = http://{{ X_xivo_phonebook_ip }}:8667/ContactData.xml
++#remote_phonebook.data.1.name = XiVO
++# Intervalle de rafraichissement de l'annulaire (en minutes - 60 minimum)
++#directory.update_time_interval = 120
++{% endif %}
++
+ security.user_name.user = {{ user_username|d('user') }}
+ security.user_name.admin = {{ admin_username|d('admin') }}
+ security.user_password = {{ user_username|d('user') }}:{{ user_password|d('user') }}
+@@ -42,6 +49,7 @@
+ {% set line = sip_lines.get(account_no) -%}
+ {% if line -%}
+ account.{{ account_no }}.enable = 1
++account.{{ account_no }}.expires = 120
+ account.{{ account_no }}.display_name = {{ line['display_name'] }}
+ account.{{ account_no }}.auth_name = {{ line['auth_username'] }}
+ account.{{ account_no }}.user_name = {{ line['username'] }}
+@@ -69,3 +77,22 @@
+ {% endif %}
+ {% endfor %}
+ 
++## Tuning by Alexis de Lattre
++
++# Téléchargement de la config chaque jour
++auto_provision.mode = 1
++auto_provision.weekly.enable = 1
++auto_provision.weekly.mask = 0123456
++auto_provision.weekly.begin_time = 04:00
++auto_provision.weekly.end_time = 04:05
++
++# Format francais pour la date : 25/12/2015
++custom.handset.date_format = 3
++# Code PIN de la base
++base.pin_code = 8081
++# Valide le transfert quand on raccroche
++transfer.blind_tran_on_hook_enable = 1
++transfer.on_hook_trans_enable = 1
++# Désactive LLDP car ça semble poser des pbs :
++# http://forum.yealink.com/forum/archive/index.php?thread-594-2.html
++network.lldp.enable = 0
