@@ -72,11 +72,11 @@
 +# T46 : 27 (10 physiques + écrans suivants)
 +# Si on veut toutes les configurer sur la même "ligne"
 +# On ne peut pas mettre le libellé sur les touches de ligne apparemment...
-+#{% block custom_line_keys scoped %}
++{% block custom_line_keys scoped %}
 +#linekey.1.line = 1
 +#linekey.2.line = 1
 +#linekey.3.line = 1
-+#{% endblock %}
++{% endblock %}
 +
 +# Les "programmable keys" sont les touches contextuelles en bas de l'écran
 +# Réaffectation de la touche 2
