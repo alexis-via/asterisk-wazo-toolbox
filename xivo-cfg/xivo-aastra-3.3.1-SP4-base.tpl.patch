@@ -1,0 +1,36 @@
+diff --git a/base.tpl-origin b/base.tpl
+index 839107f..5e795fb 100644
+--- a/base.tpl-origin
++++ b/base.tpl
+@@ -119,3 +119,31 @@ call waiting: 0
+ 
+ {{ XX_fkeys }}
+ 
++# MODIFICATIONS par Alexis de Lattre
++# Reboot des téléphones chaque nuit
++auto resync mode: 3 # 1 = MAJ config 3 = MAJ firmware + config
++auto resync time: 04:00
++auto resync max delay: 3 # (min) La MAJ a lieu entre le resync time et resync time+max delay
++
++# Nb de secondes avant de composer tt seul
++sip digit timeout: 7
++# Jamais de suppression de silence
++sip silence suppression: 0
++# Pour que les tels se ré-enregistrent rapidement en cas de reboot du serveur
++# ou de basculement sur le serveur Xivo de spare
++sip registration period: 120
++# DTMF : 0 = RFC 2833 | 1 = SIP INFO
++sip dtmf method: 0
++# Affiche les touches DTMF sur l'écran du téléphone
++display dtmf digits: 1
++# 1 = force RFC 2833
++sip out-of-band dtmf: 1
++emergency dial plan: 11[23459]|1[578]|
++sip dial plan: "00XXXXXX+#|0[1-9]XXXXXXXX|118XXX|3XXX|1XXX+#|1[578]|11[23459]|*X+#"
++# TODO à adapter en ajoutant les numéros internes !
++# Il faut toujours mettre un # (ou autre symbol keypad) après un +, sinon pb
++# Je ne peux pas mettre [13]XXX pour tous les numéros courts...
++# sinon ça empêche le 118XXX !
++# En effet, si je veux composer 118218, il ne va prendre que 1182 et va numéroter
++# Image de fond pour tels 6739i (résolution 640x480, format PNG ou JPG)
++# background image: http://{{ ntp_ip }}:8667/Aastra/background.png
