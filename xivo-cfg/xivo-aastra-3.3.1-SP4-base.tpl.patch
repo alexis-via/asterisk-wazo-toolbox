@@ -32,5 +32,6 @@ index 839107f..5e795fb 100644
 +# Je ne peux pas mettre [13]XXX pour tous les numéros courts...
 +# sinon ça empêche le 118XXX !
 +# En effet, si je veux composer 118218, il ne va prendre que 1182 et va numéroter
-+# Image de fond pour tels 6739i (résolution 640x480, format PNG ou JPG)
++# Image de fond pour tels 6739i - Résolution 640x480, largeur utile 370
++# format PNG ou JPG, fond transparent ne marche pas
 +# background image: http://{{ ntp_ip }}:8667/Aastra/background.png
