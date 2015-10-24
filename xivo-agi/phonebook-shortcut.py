@@ -29,7 +29,7 @@ use 4 digits and start with 8 (8XXX).
 Here is an example of Dialplan that uses this AGI script:
 
 [default]
-exten = _8XXX,1,NoOp(Raccourci)
+exten = _8XXX,1,NoOp(Phonebook shortcut dialed)
 same = n,AGI(/var/lib/asterisk/agi-bin/phonebook-shortcut.py)
 same = n,GotoIf(${SHORTCUT_FULLNUMBER}?FOUND:NOTFOUND)
 same = n(FOUND),Goto(to-extern,${SHORTCUT_FULLNUMBER},1)
