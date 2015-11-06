@@ -118,7 +118,8 @@ def main(options, arguments):
             password='proformatique'""")
         cr = conn.cursor()
         cr.execute("""
-            SELECT pb.displayname, pbn.number, pbn.type FROM phonebooknumber pbn
+            SELECT pb.displayname, pbn.number, pbn.type
+            FROM phonebooknumber pbn
             LEFT JOIN phonebook pb ON pb.id = pbn.phonebookid
             WHERE """ + options.field + "=%s", (stdinput['agi_extension'], ))
         res = cr.fetchall()
