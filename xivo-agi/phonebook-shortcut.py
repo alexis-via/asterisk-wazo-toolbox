@@ -32,7 +32,12 @@ Here is an example of Dialplan that uses this AGI script:
 exten = _8XXX,1,NoOp(Phonebook shortcut dialed)
 same = n,AGI(/var/lib/asterisk/agi-bin/phonebook-shortcut.py)
 same = n,GotoIf(${SHORTCUT_FULLNUMBER}?FOUND:NOTFOUND)
-same = n(FOUND),Goto(to-extern,${SHORTCUT_FULLNUMBER},1)
+same = n(FOUND),NoOp(Shortcut found)
+same = n,Set(CONNECTEDLINE(name,i)=${CONNECTEDLINENAME})
+same = n,Set(CONNECTEDLINE(name-pres,i)=allowed)
+same = n,Set(CONNECTEDLINE(num,i)=${SHORTCUT_FULLNUMBER})
+same = n,Set(CONNECTEDLINE(num-pres)=allowed)
+same = n,Goto(to-extern,${SHORTCUT_FULLNUMBER},1)
 same = n,Hangup()
 same = n(NOTFOUND),Playback(invalid)
 same = n,Hangup()
@@ -113,7 +118,7 @@ def main(options, arguments):
             password='proformatique'""")
         cr = conn.cursor()
         cr.execute("""
-            SELECT pbn.number, pbn.type FROM phonebooknumber pbn
+            SELECT pb.displayname, pbn.number, pbn.type FROM phonebooknumber pbn
             LEFT JOIN phonebook pb ON pb.id = pbn.phonebookid
             WHERE """ + options.field + "=%s", (stdinput['agi_extension'], ))
         res = cr.fetchall()
@@ -126,9 +131,10 @@ def main(options, arguments):
         stdout_write('VERBOSE "This shortcut is NOT present in the phonebook"')
         return False
     stdout_write('VERBOSE "This shortcut is present in the phonebook"')
+    stdout_write('SET VARIABLE CONNECTEDLINENAME "%s"' % res[0][0])
     rdict = {}
     for entry in res:
-        rdict[entry[1]] = entry[0]
+        rdict[entry[2]] = entry[1]
     if rdict.get('mobile'):
         stdout_write('SET VARIABLE SHORTCUT_FULLNUMBER "%s"' % rdict['mobile'])
     elif rdict.get('office'):
