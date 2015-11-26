@@ -91,7 +91,7 @@ def main(options, arguments):
         input_line = sys.stdin.readline()
         if not input_line:
             break
-        line = input_line.strip()
+        line = input_line.strip().decode('utf-8')
         try:
             variable, value = line.split(':')
         except:
