@@ -12,7 +12,9 @@ server {
     {
         fastcgi_intercept_errors on;
         include /etc/nginx/fastcgi_params;
-        fastcgi_param SCRIPT_FILENAME   /usr/lib/cgi-bin/$fastcgi_script_name;
+        fastcgi_param SCRIPT_FILENAME    $document_root$fastcgi_script_name;
+        # The line below is the OLD line for Debian 7
+        #fastcgi_param SCRIPT_FILENAME   /usr/lib/cgi-bin/$fastcgi_script_name;
         fastcgi_pass unix:/var/run/fcgiwrap.socket;
     }
 
