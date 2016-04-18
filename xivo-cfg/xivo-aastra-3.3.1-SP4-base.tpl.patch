@@ -1,8 +1,6 @@
-diff --git a/base.tpl-origin b/base.tpl
-index 839107f..5e795fb 100644
---- a/base.tpl-origin
-+++ b/base.tpl
-@@ -119,3 +119,31 @@ call waiting: 0
+--- base.tpl-origin	2016-04-18 17:32:11.663060174 +0200
++++ base.tpl	2016-04-18 17:14:24.899587601 +0200
+@@ -119,3 +119,38 @@
  
  {{ XX_fkeys }}
  
@@ -11,6 +9,13 @@ index 839107f..5e795fb 100644
 +auto resync mode: 3 # 1 = MAJ config 3 = MAJ firmware + config
 +auto resync time: 04:00
 +auto resync max delay: 3 # (min) La MAJ a lieu entre le resync time et resync time+max delay
++
++# VLAN
++tagging enabled: 1
++# Utiliser le VLAN 4095 quand on veut du "non-taggé"
++vlan id: 4095
++# Port 1 = Port PC
++vlan id port 1: 2
 +
 +# Nb de secondes avant de composer tt seul
 +sip digit timeout: 7
@@ -32,7 +37,5 @@ index 839107f..5e795fb 100644
 +# Je ne peux pas mettre [13]XXX pour tous les numéros courts...
 +# sinon ça empêche le 118XXX !
 +# En effet, si je veux composer 118218, il ne va prendre que 1182 et va numéroter
-+# Image de fond pour tels 6739i - Résolution 640x480, largeur utile 370
-+# format PNG ou JPG, fond transparent ne marche pas
-+# Logo à décaler vers le bas, sinon il se superpose au nom de l'utilisateur
++# Image de fond pour tels 6739i (résolution 640x480, format PNG ou JPG)
 +# background image: http://{{ ntp_ip }}:8667/Aastra/background.png
