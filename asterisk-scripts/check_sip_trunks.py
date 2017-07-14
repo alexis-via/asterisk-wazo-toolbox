@@ -100,6 +100,8 @@ if __name__ == '__main__':
                     if not options.silent:
                         print "Command 'sip reload' executed."
                 except Exception, e:
+                    if not options.silent:
+                        print "Command 'sip reload' failed e=", e
                     subject = "Command 'sip reload' failed"
                     body = u"""The command "sip reload" failed !\n\nHere are the details :\n%s""" % pformat(res_sipreload)
                     send_mail(subject, body)
