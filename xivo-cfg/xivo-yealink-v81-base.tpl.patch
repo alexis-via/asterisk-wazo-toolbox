@@ -58,6 +58,8 @@
 +features.pickup.group_pickup_code = {{ exten_pickup_call }}
 +# Durée du rétro-éclairage en secondes
 +phone_setting.backlight_time = 60
++# Pas de réveil intempestif du rétro-éclairage
++features.blf_active_backlight.enable = 0
 +
 +# Si on veut ajouter des sonneries personnalisées
 +# fichier WAV à générer au format PCMU mono 8khz 16bit taille < 100ko
