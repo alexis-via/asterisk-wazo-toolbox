@@ -1,0 +1,52 @@
+--- ../../templates/W52P.tpl	2017-12-21 15:45:59.000000000 +0100
++++ W52P.tpl	2018-03-01 16:02:40.481336263 +0100
+@@ -4,7 +4,8 @@
+ static.auto_provision.custom.protect = 1
+ auto_provision.handset_configured.enable = 1
+ 
+-custom.handset.date_format = 2
++# Format francais pour la date : 25/12/2015
++custom.handset.date_format = 3
+ custom.handset.screen_saver.enable = 0
+ 
+ sip.notify_reboot_enable = 0
+@@ -27,7 +28,7 @@
+ static.syslog.server = %NULL%
+ {% endif %}
+ 
+-static.lang.wui = {{ XX_lang|d('%NULL%') }}
++static.lang.wui = English
+ custom.handset.language = {{ XX_handset_lang|d('%NULL%') }}
+ 
+ voice.tone.country = {{ XX_country|d('%NULL%') }}
+@@ -57,6 +58,7 @@
+ {% for line_no, line in XX_sip_lines.iteritems() -%}
+ {% if line -%}
+ account.{{ line_no }}.enable = 1
++account.{{ line_no }}.expires = 120
+ account.{{ line_no }}.label = {{ line['number']|d(line['display_name']) }}
+ account.{{ line_no }}.display_name = {{ line['display_name'] }}
+ account.{{ line_no }}.auth_name = {{ line['auth_username'] }}
+@@ -87,3 +89,22 @@
+ voice_mail.number.{{ line_no }} = %NULL%
+ {% endif %}
+ {% endfor %}
++
++### A LA FIN du FICHIER
++## Tuning by Alexis de Lattre
++
++# Téléchargement de la config chaque jour
++auto_provision.mode = 1
++auto_provision.weekly.enable = 1
++auto_provision.weekly.mask = 0123456
++auto_provision.weekly.begin_time = 04:00
++auto_provision.weekly.end_time = 04:05
++
++# Code PIN de la base
++base.pin_code = 8081
++# Valide le transfert quand on raccroche
++transfer.blind_tran_on_hook_enable = 1
++transfer.on_hook_trans_enable = 1
++# Désactive LLDP car ça semble poser des pbs :
++# http://forum.yealink.com/forum/archive/index.php?thread-594-2.html
++network.lldp.enable = 0
