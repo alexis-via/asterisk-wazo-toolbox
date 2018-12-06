@@ -1,5 +1,5 @@
 server {
-    listen 8888 default;
+    listen 9999 default;
     server_name $domain;
 
     access_log /var/log/nginx/smokeping.access.log;
