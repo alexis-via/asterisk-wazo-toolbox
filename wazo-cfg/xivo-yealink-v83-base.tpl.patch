@@ -65,7 +65,7 @@
 +# fichier WAV à générer au format PCMU mono 8khz 16bit taille < 100ko
 +# Sur T22/26/28/41/42, le total des sonneries personnalisées doit être < 100 ko
 +# ajouter une ligne ringtone.url pour chaque sonnerie supplémentaire
-+#ringtone.url = http://{{ ntp_ip }}:8667/myring.wav
++#ringtone.url = http://{{ ip }}:{{ http_port }}/myring.wav
 +# Pour supprimer toutes les sonneries personnalisées
 +#ringtone.delete = http://localhost/all
 +# Sonnerie par défaut : indiquer le nom du fichier WAV
@@ -133,9 +133,9 @@
 +# Mettre le fichier logotel.dob dans le répertoire
 +# /var/lib/xivo-provd/plugins/xivo-yealink-xxx/var/tftpboot
 +#phone_setting.lcd_logo.mode = 2
-+#lcd_logo.url = http://{{ ntp_ip }}:8667/company-logo.dob
++#lcd_logo.url = http://{{ ip }}:{{ http_port }}/company-logo.dob
 +# Personnalisation du logo pour T46G
 +# PNG en 480x272 - Largeur utile : 260 px (sur une largeur totale de 480)
 +#phone_setting.backgrounds = Config:background-logo.png
-+#wallpaper_upload.url = http://{{ ntp_ip }}:8667/background-logo.png
++#wallpaper_upload.url = http://{{ ip }}:{{ http_port }}/background-logo.png
 +{% endblock %}
