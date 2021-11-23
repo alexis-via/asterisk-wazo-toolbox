@@ -1,8 +1,8 @@
---- base-origin.tpl	2021-11-22 19:15:42.239239800 +0100
-+++ base.tpl	2021-11-22 19:15:30.727247060 +0100
-@@ -20,7 +20,8 @@
- distinctive_ring_tones.alert_info.7.ringer = 7
- distinctive_ring_tones.alert_info.8.ringer = 8
+--- base-origin.tpl	2021-11-22 19:09:33.295469094 +0100
++++ base.tpl	2021-11-22 19:08:51.751494172 +0100
+@@ -25,7 +25,8 @@
+ 
+ features.caller_name_type_on_dialing = 1
  
 -local_time.date_format = 2
 +# Format francais pour la date : 25/12/2015
@@ -10,8 +10,8 @@
  
  sip.notify_reboot_enable = 0
  
-@@ -50,7 +51,7 @@
- syslog.server = %NULL%
+@@ -57,7 +58,7 @@
+ static.syslog.server = %NULL%
  {% endif %}
  
 -lang.wui = {{ XX_lang|d('%NULL%') }}
@@ -19,7 +19,7 @@
  lang.gui = {{ XX_lang|d('%NULL%') }}
  
  voice.tone.country = {{ XX_country|d('%NULL%') }}
-@@ -80,6 +81,7 @@
+@@ -87,6 +88,7 @@
  {% for line_no, line in XX_sip_lines.iteritems() -%}
  {% if line -%}
  account.{{ line_no }}.enable = 1
@@ -27,10 +27,11 @@
  account.{{ line_no }}.label = {{ line['number']|d(line['display_name']) }}
  account.{{ line_no }}.display_name = {{ line['display_name'] }}
  account.{{ line_no }}.auth_name = {{ line['auth_username'] }}
-@@ -146,3 +148,108 @@
- directory_setting.url = http://{{ ip }}:{{ http_port }}/directory_setting.xml
+@@ -163,3 +165,111 @@
  
- {{ XX_fkeys }}
+ {% block model_specific_parameters -%}
+ {% endblock %}
++
 +
 +## Tuning by Alexis de Lattre
 +#
@@ -57,12 +58,14 @@
 +features.pickup.group_pickup_code = {{ exten_pickup_call }}
 +# Durée du rétro-éclairage en secondes
 +phone_setting.backlight_time = 60
++# Pas de réveil intempestif du rétro-éclairage
++features.blf_active_backlight.enable = 0
 +
 +# Si on veut ajouter des sonneries personnalisées
 +# fichier WAV à générer au format PCMU mono 8khz 16bit taille < 100ko
 +# Sur T22/26/28/41/42, le total des sonneries personnalisées doit être < 100 ko
 +# ajouter une ligne ringtone.url pour chaque sonnerie supplémentaire
-+#ringtone.url = http://{{ ntp_ip }}:8667/myring.wav
++#ringtone.url = http://{{ ip }}:{{ http_port }}/myring.wav
 +# Pour supprimer toutes les sonneries personnalisées
 +#ringtone.delete = http://localhost/all
 +# Sonnerie par défaut : indiquer le nom du fichier WAV
@@ -130,9 +133,9 @@
 +# Mettre le fichier logotel.dob dans le répertoire
 +# /var/lib/xivo-provd/plugins/xivo-yealink-xxx/var/tftpboot
 +#phone_setting.lcd_logo.mode = 2
-+#lcd_logo.url = http://{{ ntp_ip }}:8667/company-logo.dob
++#lcd_logo.url = http://{{ ip }}:{{ http_port }}/company-logo.dob
 +# Personnalisation du logo pour T46G
 +# PNG en 480x272 - Largeur utile : 260 px (sur une largeur totale de 480)
 +#phone_setting.backgrounds = Config:background-logo.png
-+#wallpaper_upload.url = http://{{ ntp_ip }}:8667/background-logo.png
++#wallpaper_upload.url = http://{{ ip }}:{{ http_port }}/background-logo.png
 +{% endblock %}
