@@ -1,5 +1,5 @@
---- base-origin.tpl	2021-11-22 19:09:33.295469094 +0100
-+++ base.tpl	2021-11-22 19:08:51.751494172 +0100
+--- base.tpl-origin	2021-11-24 11:19:19.812034753 +0100
++++ base.tpl	2021-11-24 11:22:04.491814647 +0100
 @@ -25,7 +25,8 @@
  
  features.caller_name_type_on_dialing = 1
@@ -27,7 +27,7 @@
  account.{{ line_no }}.label = {{ line['number']|d(line['display_name']) }}
  account.{{ line_no }}.display_name = {{ line['display_name'] }}
  account.{{ line_no }}.auth_name = {{ line['auth_username'] }}
-@@ -163,3 +165,111 @@
+@@ -163,3 +165,116 @@
  
  {% block model_specific_parameters -%}
  {% endblock %}
@@ -42,6 +42,8 @@
 +auto_provision.weekly.begin_time = 04:00
 +auto_provision.weekly.end_time = 04:05
 +
++# French NTP server as secondary NTP
++local_time.ntp_server2 = fr.pool.ntp.org
 +# Nombre de secondes sans nouveau chiffre avant de lancer l'appel
 +phone_setting.inter_digit_time = 7
 +# On fait un transfert indirect quand on utilise les touches de fonction
@@ -92,9 +94,12 @@
 +# Si on veut toutes les configurer sur la même "ligne"
 +# On ne peut pas mettre le libellé sur les touches de ligne apparemment...
 +{% block custom_line_keys scoped %}
++#linekey.1.type = 15
 +#linekey.1.line = 1
++#linekey.1.label = Ligne1
++#linekey.2.type = 15
 +#linekey.2.line = 1
-+#linekey.3.line = 1
++#linekey.2.label = Ligne2
 +{% endblock %}
 +
 +# Les "programmable keys" sont les touches contextuelles en bas de l'écran

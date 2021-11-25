@@ -1,5 +1,4 @@
-#! /usr/bin/python
-# -*- encoding: utf-8 -*-
+#! /usr/bin/python3
 #
 # Copyright (C) 2014 Alexis de Lattre <alexis _at_ via.ecp.fr>
 #
@@ -10,20 +9,70 @@
 
 
 import sys
-from optparse import OptionParser
-from xivo_provd_cli import client as cli_client
+import argparse
+from wazo_provd_client import Client as ProvdClient
+from wazo_auth_client import Client as AuthClient
+from xivo.config_helper import parse_config_file
 
-options = [
-    {
-        'names': ('-s', '--synchronize'),
-        'dest': 'sync',
-        'help': "Resync the devices. ",
-        'action': 'store_true',
-        'default': False},
-    ]
+
+_CONFIG_AUTH = {
+    'host': 'localhost',
+    'port': 9497,
+    'prefix': None,
+    'https': False,
+    'key_file': '/var/lib/wazo-auth-keys/wazo-provd-cli-key.yml',
+}
+
+
+def main(args):
+    key_file = parse_config_file(_CONFIG_AUTH.pop('key_file'))
+    aclient = AuthClient(
+        username=key_file['service_id'],
+        password=key_file['service_key'],
+        **_CONFIG_AUTH)
+    token_data = aclient.token.new(
+        'wazo_user', expiration=3600, session_type='mobile')
+    pclient = ProvdClient(
+        host='localhost', verify_certificate=False, token=token_data['token'])
+    pdevices = pclient.devices
+    pplugins = pclient.plugins
+
+    installed_plugins = list(pplugins.list()['plugins'].keys())
+    print("Installed plugins : %s" % installed_plugins)
+
+    if not args.list_plugins:
+        print("The command requires one or more arguments")
+        sys.exit(1)
+
+    plugins_to_regen = []
+    if (
+            len(args.list_plugins) == 1 and
+            args.list_plugins[0] and
+            args.list_plugins[0].lower() == 'all'):
+        plugins_to_regen = installed_plugins
+    else:
+        for arg in args.list_plugins:
+            for iplugin in installed_plugins:
+                if arg in iplugin:
+                    plugins_to_regen.append(iplugin)
+
+    print("Plugins to regenerate : %s" % plugins_to_regen)
+
+    for plugin in plugins_to_regen:
+        print("RECONFIGURE PLUGIN %s..." % plugin)
+        devices = pdevices.list(
+            {'plugin': plugin}, fields=['id'], recurse=True)['devices']
+        for device in devices:
+            device_id = device['id']
+            pdevices.reconfigure(device_id)
+            print('RECONFIGURE device %s' % device_id)
+            if args.sync:
+                print("SYNC device %s ... " % device_id)
+                pdevices.synchronize(device_id)
+
 
 if __name__ == '__main__':
-    usage = "usage: %prog [options] xivo-plugin1 xivo-plugin2 ..."
+    usage = "usage: wazo-provd-cmd [options] wazo-plugin1 wazo-plugin2 ..."
     epilog = "Script written by Alexis de Lattre. " \
         "Published under the GNU GPL licence."
     description = "This script updates the configuration files of one " \
@@ -31,42 +80,12 @@ if __name__ == '__main__':
         "If you use 'xivo-provd-cmd all', it will resync all the devices " \
         "from all the plugins. If you use 'xivo-provd-cmd yealink', it " \
         "will resync the plugins that have 'yealink' in their name."
-    parser = OptionParser(usage=usage, epilog=epilog, description=description)
-    for option in options:
-        param = option['names']
-        del option['names']
-        parser.add_option(*param, **option)
-    options, arguments = parser.parse_args()
-    sys.argv[:] = arguments
-    # print "arguments=", arguments
-    # print "sync=", options.sync
-
-    client = cli_client.new_cli_provisioning_client(
-        'http://localhost:8666/provd', ('admin', ''))
-    devices = client.devices()
-    plugins = client.plugins()
-
-    installed_plugins = plugins.installed().keys()
-    print "Installed plugins : %s" % installed_plugins
-
-    if not arguments:
-        print "The command requires one or more arguments"
-        sys.exit(1)
-
-    plugins_to_regen = []
-    if len(arguments) == 1 and arguments[0] == 'all':
-        plugins_to_regen = installed_plugins
-    else:
-        for arg in arguments:
-            for iplugin in installed_plugins:
-                if arg in iplugin:
-                    plugins_to_regen.append(iplugin)
-
-    print "Plugins to regenerate : %s" % plugins_to_regen
-
-    for plugin in plugins_to_regen:
-        print "RECONFIGURE PLUGIN %s..." % plugin
-        devices.using_plugin(plugin).reconfigure()
-        if options.sync:
-            print "SYNC PLUGIN %s ... " % plugin
-            devices.using_plugin(plugin).synchronize()
+    parser = argparse.ArgumentParser(
+        usage=usage, epilog=epilog, description=description)
+    parser.add_argument(
+        '-s', '--synchronize', dest='sync', action='store_true',
+        help="Resync the devices.")
+    parser.add_argument(
+        "list_plugins", nargs='*', help="List of plugins")
+    args = parser.parse_args()
+    main(args)
