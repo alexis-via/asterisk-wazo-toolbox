@@ -7,13 +7,13 @@
 
 echo -n "Starting to generate backup data-manual... "
 
-xivo-backup data /var/backups/xivo/data-manual
+wazo-backup data /var/backups/wazo/data-manual
 
 echo "done."
 
 echo -n "Starting to generate backup db-manual... "
 
-xivo-backup db /var/backups/xivo/db-manual
+wazo-backup db /var/backups/wazo/db-manual
 
 echo "done."
 
