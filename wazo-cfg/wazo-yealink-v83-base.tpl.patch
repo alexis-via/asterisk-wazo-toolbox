@@ -1,0 +1,141 @@
+--- ../../templates/base.tpl	2025-06-04 21:30:02.000000000 +0200
++++ base.tpl	2025-07-24 11:01:49.361545123 +0200
+@@ -36,7 +36,8 @@
+ {% endfor -%}
+ features.show_action_uri_option = 0
+ 
+-local_time.date_format = 2
++# Format francais pour la date : 25/12/2015
++local_time.date_format = 3
+ 
+ sip.notify_reboot_enable = 0
+ 
+@@ -68,7 +69,7 @@
+ static.syslog.server = %NULL%
+ {% endif %}
+ 
+-lang.wui = {{ XX_lang|d('%NULL%') }}
++lang.wui = English
+ lang.gui = {{ XX_lang|d('%NULL%') }}
+ 
+ voice.tone.country = {{ XX_country|d('%NULL%') }}
+@@ -98,6 +99,7 @@
+ {% for line_no, line in XX_sip_lines.items() -%}
+ {% if line -%}
+ account.{{ line_no }}.enable = 1
++account.{{ line_no }}.expires = 120
+ account.{{ line_no }}.label = {{ line['number']|d(line['display_name']) }}
+ account.{{ line_no }}.display_name = {{ line['display_name'] }}
+ account.{{ line_no }}.auth_name = {{ line['auth_username'] }}
+@@ -174,3 +176,111 @@
+ 
+ {% block model_specific_parameters -%}
+ {% endblock %}
++
++
++## Tuning by Alexis de Lattre
++#
++# Téléchargement de la config chaque jour
++auto_provision.power_on = 1
++auto_provision.weekly.enable = 1
++auto_provision.weekly.dayofweek = 0123456
++auto_provision.weekly.begin_time = 04:00
++auto_provision.weekly.end_time = 04:05
++
++# Nombre de secondes sans nouveau chiffre avant de lancer l'appel
++phone_setting.inter_digit_time = 7
++# On fait un transfert indirect quand on utilise les touches de fonction
++transfer.dsskey_deal_type = 1
++# Numéros d'urgence
++phone_setting.emergency.number = 15,17,18,112
++# Pas de beep touche
++features.key_tone = 0
++# Pas de beep quand on a un msg sur le répondeur
++features.voice_mail_tone_enable = 0
++# Active la touche contextuelle pour le pickup
++features.pickup.group_pickup_enable = 1
++# Le "feature code" du group pickup
++features.pickup.group_pickup_code = {{ exten_pickup_call }}
++# Durée du rétro-éclairage en secondes
++phone_setting.backlight_time = 60
++# Pas de réveil intempestif du rétro-éclairage
++features.blf_active_backlight.enable = 0
++
++# Si on veut ajouter des sonneries personnalisées
++# fichier WAV à générer au format PCMU mono 8khz 16bit taille < 100ko
++# Sur T22/26/28/41/42, le total des sonneries personnalisées doit être < 100 ko
++# ajouter une ligne ringtone.url pour chaque sonnerie supplémentaire
++#ringtone.url = http://{{ ip }}:{{ http_port }}/myring.wav
++# Pour supprimer toutes les sonneries personnalisées
++#ringtone.delete = http://localhost/all
++# Sonnerie par défaut : indiquer le nom du fichier WAV
++#phone_setting.ring_type = myring.wav
++
++# TOUCHES
++# 5 propriétés : .line, .value, .pickup_value, .label, .xml_phonebook
++# Pour la propriété type :
++# 0-NA  1-Conference  2-Forward  3-Transfer  4-Hold  5-DND  7-Call Return
++# 8-SMS  9-Directed Pickup  10-Call Park  11-DTMF  12-Voice Mail
++# 13-Speed Dial  14-Intercom  15-Line  16-BLF  17-URL  18-Group Listening
++# 20-Private Hold  22-XML Group  23-Group Pickup  24-Multicast Paging
++# 25-Record  27-XML Browser  34-Hot Desking  35-URL Record  38-LDAP
++# 39-BLF List  40-Prefix  41-Zero Touch  42-ACD  45-Local Group
++# 46-Network Group 47-XML Directory 49-Custom Button  50-Keypad Lock
++# 55-Meet-Me Conference 56-Retrieve Park  57-Hoteling
++# 58-ACD Grace  59-Sisp Code  60-Emergency
++# 61-Directory
++
++# Les "line keys" sont les touches à côté de l'écran. Nombre de touches :
++# T20+21 : 2 ; T22+26 : 3 ; T28 : 6
++# T41+42 : 15 (6 physiques + écrans suivants)
++# T46 : 27 (10 physiques + écrans suivants)
++# Si on veut toutes les configurer sur la même "ligne"
++# On ne peut pas mettre le libellé sur les touches de ligne apparemment...
++{% block custom_line_keys scoped %}
++#linekey.1.line = 1
++#linekey.2.line = 1
++#linekey.3.line = 1
++{% endblock %}
++
++# Les "programmable keys" sont les touches contextuelles en bas de l'écran
++# Réaffectation de la touche 2
++# 47 . Répertoire XML (marche pour le répertoire distant - aussi pour le local ?)
++#programablekey.2.type = 47
++#programablekey.2.xml_phonebook = 1
++#programablekey.2.label = Répertoire
++
++# Les 'memory keys' sont les touches avec papier des T26+28 (1 à 10)
++# Exemple :
++#memorykey.1.line = 1
++#memorykey.1.value = *8
++#memorykey.1.pickup_value =
++#memorykey.1.type = 13
++
++# Dialnow
++dialnow.item.1 = 00xxxxxxxxxxxxxxxxxx
++dialnow.item.2 = 0[1-9]xxxxxxxx
++dialnow.item.3 = 118xxx
++dialnow.item.4 = 3xxx
++dialnow.item.5 = 1xxxxx
++dialnow.item.6 = 1[5-8]
++dialnow.item.7 = 11[2-9]
++# Numéros internes TODO personnaliser la ligne ci-dessous
++#dialnow.item.8 = [4-9]x
++dialnow.item.9 = *x.
++
++# Active le VLAN tagging pour le port PC
++#network.vlan.pc_port_enable = 1
++#network.vlan.pc_port_vid = 2
++
++{% block custom_logo scoped %}
++# Personnalisation du logo T41/T42
++# Fichier .dob en 192x64 < 100 Ko
++# Mettre le fichier logotel.dob dans le répertoire
++# /var/lib/xivo-provd/plugins/xivo-yealink-xxx/var/tftpboot
++#phone_setting.lcd_logo.mode = 2
++#lcd_logo.url = http://{{ ip }}:{{ http_port }}/company-logo.dob
++# Personnalisation du logo pour T46G
++# PNG en 480x272 - Largeur utile : 260 px (sur une largeur totale de 480)
++#phone_setting.backgrounds = Config:background-logo.png
++#wallpaper_upload.url = http://{{ ip }}:{{ http_port }}/background-logo.png
++{% endblock %}
