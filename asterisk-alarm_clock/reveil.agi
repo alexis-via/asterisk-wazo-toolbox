@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#Numero a rappeler pour le reveil
+INTERNAL_CONTEXT=default
+
 NUMERO=$1
 HEURE=$2
 MINUTES=$3
@@ -9,27 +10,22 @@ MOIS=`date +%m`
 ANNEE=`date +%Y`
 
 TIMESTAMP=$JOUR$MOIS$ANNEE$HEURE$MINUTES
+ALARMFILE=/var/lib/wazo/reveil/liste.reveil
+LOGFILE=/var/log/wazo-reveil.log
+FICHIER=/var/spool/asterisk/tmp/$NUMERO$TIMESTAMP.call
 
-# Si l'appelant est le téléphone de la salle de soin, on fera sonner le portable de l'infirmier.
-#if [ $NUMERO = 8m6k13 ];then
-#	NUMERO=i2vzdb
-#fi
+echo "Channel: PJSIP/$NUMERO" >>  $FICHIER
+echo "Account: $NUMERO" >> $FICHIER
+echo "CallerID: Réveil <999>" >> $FICHIER
+echo "MaxRetries: 3" >> $FICHIER
+echo "RetryTime: 10" >> $FICHIER
+echo "WaitTime: 10" >> $FICHIER
+echo "Context: $INTERNAL_CONTEXT" >> $FICHIER
+echo "Extension: reveil" >> $FICHIER
 
-FICHIER=$NUMERO$TIMESTAMP.call
+touch -t $TIMESTAMP $FICHIER
 
-echo "Channel: PJSIP/$NUMERO" >>  /var/spool/asterisk/tmp/$FICHIER
-echo "Account: $NUMERO" >> /var/spool/asterisk/tmp/$FICHIER
-echo "CallerID: Reveil <955>" >> /var/spool/asterisk/tmp/$FICHIER
-echo "MaxRetries: 3" >> /var/spool/asterisk/tmp/$FICHIER
-echo "RetryTime: 10" >> /var/spool/asterisk/tmp/$FICHIER
-echo "WaitTime: 10" >> /var/spool/asterisk/tmp/$FICHIER
-echo "Context: default" >> /var/spool/asterisk/tmp/$FICHIER
-echo "Extension: reveil" >> /var/spool/asterisk/tmp/$FICHIER
-
-touch -t $TIMESTAMP /var/spool/asterisk/tmp/$FICHIER
-
-crontab -u asterisk -l > /var/lib/wazo/reveil/liste.reveil
-echo "$MINUTES $HEURE * * * cp -a /var/spool/asterisk/tmp/$FICHIER /var/spool/asterisk/outgoing" >> /var/lib/wazo/reveil/liste.reveil 2>> /var/log/reveil.log
-#echo "coucou $NUMERO" >> /home/telephone/liste.reveil
-crontab -u asterisk /var/lib/wazo/reveil/liste.reveil
+crontab -u asterisk -l > $ALARMFILE
+echo "$MINUTES $HEURE * * * cp -a $FICHIER /var/spool/asterisk/outgoing" >> $ALARMFILE 2>> $LOGFILE
+crontab -u asterisk $ALARMFILE
 

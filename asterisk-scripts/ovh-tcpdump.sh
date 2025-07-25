@@ -5,5 +5,5 @@
 
 set -x
 
-/usr/sbin/tcpdump -n -i eth0 -A -s 0 port 5060 and net 91.121.0.0/16
+/usr/bin/tcpdump -n -i eth0 -A -s 0 port 5060 and net 91.121.0.0/16
 
