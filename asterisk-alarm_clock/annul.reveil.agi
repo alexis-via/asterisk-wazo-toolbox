@@ -1,0 +1,13 @@
+#! /bin/sh
+
+NUMERO=$1
+
+# Si l'appelant est le téléphone de la salle de soin, on annule la sonnerie programmée pour le portable de l'infirmier.
+#if [ $NUMERO = 8m6k13 ];then
+#	NUMERO=i2vzdb
+#fi
+
+crontab -u asterisk -l > /var/lib/wazo/reveil/liste.reveil
+crontab -u asterisk -r 2>> /var/log/reveil.log
+/bin/sed -i "/$NUMERO/d" /var/lib/wazo/reveil/liste.reveil 2>> /var/log/reveil.log 
+crontab -u asterisk /var/lib/wazo/reveil/liste.reveil
